@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="min-h-[60vh] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-lg w-full">
+        <!-- Error Card -->
+        <div class="bg-white rounded-xl shadow-lg p-8 animate-slide-up">
+            <!-- Error Icon -->
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <h2 class="text-2xl font-bold text-gray-900 text-center mb-2">
+                {{ error_message or "Something went wrong" }}
+            </h2>
+
+            <!-- Error Details -->
+            {% if error_details %}
+            <div class="mt-4 p-4 bg-red-50 rounded-lg">
+                <p class="text-sm text-red-800">
+                    <strong>Details:</strong> {{ error_details }}
+                </p>
+            </div>
+            {% endif %}
+
+            <!-- Common Error Explanations -->
+            <div class="mt-6 space-y-4">
+                {% if 'Invalid LTI launch' in error_message %}
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h3 class="text-sm font-semibold text-yellow-900 mb-2">Possible causes:</h3>
+                    <ul class="text-sm text-yellow-800 space-y-1">
+                        <li>• The launch request has expired</li>
+                        <li>• Invalid or missing authentication token</li>
+                        <li>• Tool not properly configured in the LMS</li>
+                        <li>• Session timeout or cookies disabled</li>
+                    </ul>
+                </div>
+                {% elif 'Failed to initiate login' in error_message %}
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h3 class="text-sm font-semibold text-yellow-900 mb-2">Possible causes:</h3>
+                    <ul class="text-sm text-yellow-800 space-y-1">
+                        <li>• Missing required parameters from LMS</li>
+                        <li>• Incorrect tool configuration</li>
+                        <li>• Platform authentication endpoint unavailable</li>
+                    </ul>
+                </div>
+                {% elif '403' in error_message or 'Forbidden' in error_message %}
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h3 class="text-sm font-semibold text-yellow-900 mb-2">Access Denied:</h3>
+                    <p class="text-sm text-yellow-800">
+                        You don't have permission to access this resource. Please ensure you're launching the tool from within your LMS with the appropriate role.
+                    </p>
+                </div>
+                {% elif '404' in error_message or 'Not Found' in error_message %}
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h3 class="text-sm font-semibold text-yellow-900 mb-2">Page Not Found:</h3>
+                    <p class="text-sm text-yellow-800">
+                        The requested page doesn't exist. Please check the URL or return to the home page.
+                    </p>
+                </div>
+                {% else %}
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h3 class="text-sm font-semibold text-blue-900 mb-2">Need help?</h3>
+                    <p class="text-sm text-blue-800">
+                        If this error persists, please contact your system administrator or try launching the tool again from your LMS.
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row gap-4">
+                <button onclick="window.history.back()" class="btn btn-secondary flex-1">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Go Back
+                </button>
+                <a href="{{ url_for('index') }}" class="btn btn-primary flex-1">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    Home
+                </a>
+            </div>
+
+            <!-- Support Information -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <p class="text-center text-sm text-gray-600">
+                    Support Email:
+                    <a href="mailto:{{ config.TOOL_SUPPORT_EMAIL }}" class="text-lti-primary-600 hover:text-lti-primary-700">
+                        {{ config.TOOL_SUPPORT_EMAIL }}
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Debug Mode Info (only in development) -->
+        {% if config.DEBUG %}
+        <details class="mt-6">
+            <summary class="cursor-pointer text-sm text-gray-500 hover:text-gray-700 text-center font-medium">
+                Show Technical Details (Debug Mode)
+            </summary>
+            <div class="mt-4 bg-gray-900 text-gray-300 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+                <pre>Error Type: {{ error_message }}
+Error Details: {{ error_details }}
+Request Method: {{ request.method }}
+Request Path: {{ request.path }}
+Request URL: {{ request.url }}
+User Agent: {{ request.headers.get('User-Agent', 'N/A') }}
+Timestamp: {{ moment() }}</pre>
+            </div>
+        </details>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Auto-retry logic for certain errors
+    let retryCount = 0;
+    const maxRetries = 3;
+
+    function shouldAutoRetry() {
+        const errorMessage = "{{ error_message }}";
+        return errorMessage.includes("timeout") || errorMessage.includes("network");
+    }
+
+    function retryLaunch() {
+        if (retryCount < maxRetries && shouldAutoRetry()) {
+            retryCount++;
+            console.log(`Retrying... (${retryCount}/${maxRetries})`);
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+    }
+
+    // Log error for debugging
+    console.error('LTI Tool Error:', {
+        message: "{{ error_message }}",
+        details: "{{ error_details }}",
+        timestamp: new Date().toISOString()
+    });
+
+    // Replace moment() placeholder
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.innerHTML = document.body.innerHTML.replace('{{ moment() }}', new Date().toLocaleString());
+    });
+</script>
+{% endblock %}

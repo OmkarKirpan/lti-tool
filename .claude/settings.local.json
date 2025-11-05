@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "WebSearch",
+      "Bash(openssl genrsa:*)",
+      "Bash(openssl rsa:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(tree:*)",
+      "Bash(python:*)",
+      "Skill(systematic-debugging)",
+      "Bash(uv pip install:*)",
+      "Bash(uv run ruff:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
