@@ -12,7 +12,9 @@
       "Bash(python:*)",
       "Skill(systematic-debugging)",
       "Bash(uv pip install:*)",
-      "Bash(uv run ruff:*)"
+      "Bash(uv run ruff:*)",
+      "Bash(npm install:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
