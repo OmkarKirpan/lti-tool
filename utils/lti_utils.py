@@ -6,7 +6,7 @@ Helper functions for LTI operations and data extraction
 from datetime import datetime
 
 from flask import session
-from pylti1p3.launch_data_storage.session import FlaskSessionDataStorage
+from pylti1p3.launch_data_storage.session import SessionDataStorage
 
 
 def get_launch_data_storage():
@@ -14,7 +14,7 @@ def get_launch_data_storage():
     Get the launch data storage instance
     Uses Flask session for storing launch data
     """
-    return FlaskSessionDataStorage()
+    return SessionDataStorage()
 
 
 def get_user_info(message_launch):

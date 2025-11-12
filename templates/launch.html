@@ -119,7 +119,7 @@
                 </div>
                 <div class="data-row">
                     <span class="data-label">Timestamp:</span>
-                    <span class="data-value text-sm">{{ moment() }}</span>
+                    <span class="data-value text-sm">{{ timestamp }}</span>
                 </div>
             </div>
         </div>
@@ -211,32 +211,12 @@
 
 {% block extra_scripts %}
 <script>
-    // Format timestamp
-    function formatTimestamp() {
-        const now = new Date();
-        const options = {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            timeZoneName: 'short'
-        };
-        return now.toLocaleDateString('en-US', options);
-    }
-
-    // Replace moment() placeholder
-    document.addEventListener('DOMContentLoaded', function() {
-        const timestampEl = document.querySelector('[data-timestamp]');
-        if (timestampEl) {
-            timestampEl.textContent = formatTimestamp();
-        }
-        // If using the template filter
-        document.body.innerHTML = document.body.innerHTML.replace('{{ moment() }}', formatTimestamp());
-    });
+    // Log successful launch
+    console.log('Launch successful for:', {{ user_info | tojson }});
+    console.log('Course:', {{ course_info | tojson }});
+    console.log('Launch timestamp:', '{{ timestamp }}');
 
     // Add interactive features here
-    console.log('Launch successful for:', {{ user_info | tojson }});
+    // You can extend this with custom functionality
 </script>
 {% endblock %}

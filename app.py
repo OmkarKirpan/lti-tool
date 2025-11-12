@@ -107,6 +107,7 @@ def launch():
             f"in course {course_info.get('course_id')}"
         )
 
+        from datetime import datetime
         return render_template(
             "launch.html",
             user_info=user_info,
@@ -115,18 +116,27 @@ def launch():
             is_resource_launch=is_resource_launch,
             is_deep_link=is_deep_link,
             launch_id=launch_data.get("nonce", "N/A"),
+            timestamp=datetime.now().isoformat(),
         )
 
     except LtiException as e:
         app.logger.error(f"LTI launch error: {str(e)}")
+        from datetime import datetime
         return render_template(
-            "error.html", error_message="Invalid LTI launch", error_details=str(e)
+            "error.html",
+            error_message="Invalid LTI launch",
+            error_details=str(e),
+            timestamp=datetime.now().isoformat()
         ), 400
 
     except Exception as e:
         app.logger.error(f"Unexpected launch error: {str(e)}")
+        from datetime import datetime
         return render_template(
-            "error.html", error_message="Launch failed", error_details=str(e)
+            "error.html",
+            error_message="Launch failed",
+            error_details=str(e),
+            timestamp=datetime.now().isoformat()
         ), 500
 
 
@@ -247,4 +257,5 @@ if __name__ == "__main__":
         print("Please create the configuration file.")
 
     # Run the development server
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("FLASK_PORT", 5001))
+    app.run(host="0.0.0.0", port=port, debug=True)

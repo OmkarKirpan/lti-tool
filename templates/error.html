@@ -115,7 +115,7 @@ Request Method: {{ request.method }}
 Request Path: {{ request.path }}
 Request URL: {{ request.url }}
 User Agent: {{ request.headers.get('User-Agent', 'N/A') }}
-Timestamp: {{ moment() }}</pre>
+Timestamp: {{ timestamp }}</pre>
             </div>
         </details>
         {% endif %}
@@ -151,9 +151,7 @@ Timestamp: {{ moment() }}</pre>
         timestamp: new Date().toISOString()
     });
 
-    // Replace moment() placeholder
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.innerHTML = document.body.innerHTML.replace('{{ moment() }}', new Date().toLocaleString());
-    });
+    // Timestamp is now passed from the server directly
+    // No need for client-side replacement
 </script>
 {% endblock %}

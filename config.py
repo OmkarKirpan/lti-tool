@@ -31,9 +31,7 @@ class Config:
     # Session Cookie Configuration (Required for LTI in iframes)
     SESSION_COOKIE_NAME = "lti_session"
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SECURE = (
-        os.environ.get("FLASK_ENV") == "production"
-    )  # True in production (HTTPS)
+    SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "False").lower() in ("true", "1", "yes")
     SESSION_COOKIE_SAMESITE = "None"  # Required for iframe embedding
     SESSION_COOKIE_DOMAIN = os.environ.get("SESSION_COOKIE_DOMAIN", None)
 
