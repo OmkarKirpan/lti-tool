@@ -101,6 +101,16 @@ def launch():
         session["course_id"] = course_info.get("course_id")
         session["is_instructor"] = "Instructor" in user_info.get("roles", [])
 
+        # Store launch_id for AGS operations
+        session["launch_id"] = message_launch.get_launch_id()
+
+        # Check AGS availability
+        has_ags = message_launch.has_ags()
+        if has_ags:
+            app.logger.info("AGS is available for this launch")
+        else:
+            app.logger.info("AGS not available for this launch")
+
         # Log successful launch
         app.logger.info(
             f"Successful launch for user {user_info.get('user_id')} "
@@ -117,6 +127,7 @@ def launch():
             is_deep_link=is_deep_link,
             launch_id=launch_data.get("nonce", "N/A"),
             timestamp=datetime.now().isoformat(),
+            has_ags=has_ags,
         )
 
     except LtiException as e:
@@ -212,6 +223,92 @@ def api_status():
             "is_instructor": session.get("is_instructor", False),
         }
     )
+
+
+@app.route("/submit_grade", methods=["POST"])
+def submit_grade():
+    """
+    Submit a grade back to Open edX via AGS (Assignment and Grade Services)
+    """
+    from datetime import datetime
+    from pylti1p3.grade import Grade
+
+    # Validate authentication
+    if "user_id" not in session or "launch_id" not in session:
+        return jsonify({"error": "Not authenticated or no launch data"}), 401
+
+    try:
+        # Get parameters from request
+        data = request.get_json()
+        score = float(data.get("score"))
+        max_score = float(data.get("max_score", 100))
+        comment = data.get("comment", "")
+
+        # Validate score
+        if score < 0 or score > max_score:
+            return jsonify({"error": "Invalid score value"}), 400
+
+        # Retrieve stored launch data
+        tool_conf = ToolConfJsonFile(get_lti_config_path())
+        flask_request = FlaskRequest()
+        launch_id = session.get("launch_id")
+
+        message_launch = FlaskMessageLaunch.from_cache(
+            launch_id, flask_request, tool_conf, launch_data_storage=get_launch_data_storage()
+        )
+
+        # Check AGS availability
+        if not message_launch.has_ags():
+            return jsonify(
+                {"error": "AGS not available for this launch. Ensure the tool is configured as graded in Open edX."}
+            ), 400
+
+        # Get AGS service
+        ags = message_launch.get_ags()
+
+        # Check permissions
+        if not ags.can_put_grade():
+            return jsonify(
+                {"error": "No permission to submit grades. Missing required AGS scope."}
+            ), 403
+
+        # Create Grade object
+        grade = Grade()
+        grade.set_score_given(score)
+        grade.set_score_maximum(max_score)
+        grade.set_user_id(session.get("user_id"))
+        grade.set_timestamp(datetime.utcnow().isoformat() + "Z")
+        grade.set_activity_progress("Completed")
+        grade.set_grading_progress("FullyGraded")
+
+        if comment:
+            grade.set_comment(comment)
+
+        # Submit grade to Open edX
+        app.logger.info(
+            f"Submitting grade: {score}/{max_score} for user {session.get('user_id')}"
+        )
+        response = ags.put_grade(grade)
+
+        app.logger.info(f"Grade submission successful: {response}")
+
+        return jsonify(
+            {
+                "success": True,
+                "message": "Grade submitted successfully to Open edX",
+                "score": score,
+                "max_score": max_score,
+                "comment": comment,
+            }
+        )
+
+    except ValueError as e:
+        app.logger.error(f"Grade submission validation error: {str(e)}")
+        return jsonify({"error": f"Invalid input: {str(e)}"}), 400
+
+    except Exception as e:
+        app.logger.error(f"Grade submission error: {str(e)}")
+        return jsonify({"error": f"Failed to submit grade: {str(e)}"}), 500
 
 
 @app.errorhandler(403)

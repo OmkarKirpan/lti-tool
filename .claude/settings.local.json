@@ -17,7 +17,8 @@
       "Bash(curl:*)",
       "Bash(test:*)",
       "Bash(source .venv/bin/activate)",
-      "Bash(uv run:*)"
+      "Bash(uv run:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []
