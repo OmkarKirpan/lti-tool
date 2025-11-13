@@ -78,8 +78,12 @@ Status Check: https://your-app-name.onrender.com/api/status
 
 - ⏰ Service spins down after 15 minutes of inactivity
 - 🐌 First request after spin-down takes ~30 seconds (cold start)
-- ✅ Perfect for development/testing
-- 💰 Upgrade to Starter ($7/month) for production (always on)
+- 💾 No persistent disk (sessions stored in ephemeral storage)
+  - **This is OK!** LTI launches create fresh sessions each time
+- ✅ Perfect for development/testing/small courses
+- 💰 Upgrade to Starter ($7/month) for production (always on + persistent disk)
+
+> **Note:** Session storage limitation doesn't affect LTI functionality since each OpenEdX launch creates a new session. See `RENDER_FREE_TIER.md` for complete details.
 
 ### Common Issues
 

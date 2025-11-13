@@ -49,11 +49,14 @@ services:
       - key: ALLOWED_HOSTS
         value: "*"
 
-    # Disk storage for sessions (if using filesystem sessions)
-    disk:
-      name: lti-sessions
-      mountPath: /data
-      sizeGB: 1
+    # NOTE: Persistent disk requires Starter plan or higher ($7/month)
+    # For free tier, sessions are stored in ephemeral storage (lost on restarts)
+    # Uncomment the disk section below if you upgrade to Starter or higher:
+    #
+    # disk:
+    #   name: lti-sessions
+    #   mountPath: /data
+    #   sizeGB: 1
 # Optional: Redis for production sessions
 # Uncomment below if you want to use Redis for sessions
 #
