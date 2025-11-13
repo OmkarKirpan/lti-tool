@@ -11,6 +11,8 @@ A production-ready, minimal LTI 1.3 tool starter project for OpenEdX integration
 - **Extensible**: Ready for AGS (grading), NRPS (roster), Deep Linking
 - **Production Ready**: Includes Gunicorn configuration and Redis session support
 - **⚡ Lightning Fast Setup**: Uses `uv` for 10-100x faster dependency installation
+- **🚀 One-Click Deploy**: Deploy to Render.com in minutes with Blueprint config
+- **💰 Free Tier Ready**: Works perfectly on Render's free tier for testing/small courses
 
 ## 📋 Prerequisites
 
@@ -22,7 +24,22 @@ A production-ready, minimal LTI 1.3 tool starter project for OpenEdX integration
 
 ## 🚀 Quick Start
 
-### Option A: Using uv (Recommended - 10-100x faster!)
+### 🌐 Option A: Deploy to Render.com (Fastest!)
+
+**Best for:** Getting started quickly, production deployment
+
+1. **Push your code to GitHub**
+2. **Deploy in 3 clicks** - See `DEPLOYMENT_CHECKLIST.md`
+3. **Configure OpenEdX** with your Render URLs
+4. **Done!** - Your tool is live 🎉
+
+**Time:** 5-10 minutes | **Cost:** Free (or $7/month for always-on)
+
+👉 **See `DEPLOYMENT_CHECKLIST.md` for step-by-step instructions**
+
+---
+
+### 💻 Option B: Local Development (Using uv - Recommended)
 
 [uv](https://github.com/astral-sh/uv) is an extremely fast Python package manager written in Rust.
 
@@ -83,8 +100,8 @@ Edit `configs/lti_config.json` with your OpenEdX platform details:
     "auth_login_url": "https://your-openedx-domain.com/api/lti/1.3/authorize/",
     "auth_token_url": "https://your-openedx-domain.com/oauth2/token/",
     "key_set_url": "https://your-openedx-domain.com/api/lti/1.3/jwks/",
-    "private_key_file": "keys/private.key",
-    "public_key_file": "keys/public.key",
+    "private_key_file": "../keys/private.key",
+    "public_key_file": "../keys/public.key",
     "deployment_ids": ["YOUR_DEPLOYMENT_ID"]
   }
 }
@@ -106,7 +123,7 @@ uv run gunicorn -w 4 -b 0.0.0.0:5000 app:app
 uv run python app.py
 ```
 
-### Option B: Using pip (Traditional Method)
+### 💻 Option C: Local Development (Using pip)
 
 <details>
 <summary>Click to expand pip installation instructions</summary>
@@ -197,33 +214,41 @@ Using `uv` instead of `pip` provides significant benefits:
 
 ```
 edxLTI/
-├── app.py                    # Main Flask application
-├── config.py                 # Configuration management
-├── requirements.txt          # Python dependencies
-├── pyproject.toml           # Modern Python project config (optional)
-├── package.json             # Node dependencies
-├── tailwind.config.js       # TailwindCSS configuration
-├── .env.example            # Environment template
-├── .gitignore              # Git ignore rules
-├── README.md               # This file
+├── app.py                        # Main Flask application
+├── config.py                     # Configuration management
+├── requirements.txt              # Python dependencies
+├── pyproject.toml               # Modern Python project config
+├── package.json                 # Node dependencies
+├── tailwind.config.js           # TailwindCSS configuration
+├── .env.example                # Environment template
+├── .gitignore                  # Git ignore rules
+├── README.md                   # This file
+│
+├── 🚀 Deployment Files
+├── render.yaml                 # Render Blueprint config
+├── build.sh                    # Build script for Render
+├── DEPLOYMENT_CHECKLIST.md     # Quick deployment guide
+├── RENDER_FREE_TIER.md         # Free tier setup guide
+├── RENDER_DEPLOYMENT.md        # Complete deployment guide
+│
 ├── configs/
-│   └── lti_config.json    # LTI platform configurations
+│   └── lti_config.json        # LTI platform configurations
 ├── keys/
-│   ├── private.key        # RSA private key (generated)
-│   └── public.key         # RSA public key (generated)
+│   ├── private.key            # RSA private key (generated)
+│   └── public.key             # RSA public key (generated)
 ├── templates/
-│   ├── base.html         # Base template
-│   ├── index.html        # Home page
-│   ├── launch.html       # Launch success page
-│   └── error.html        # Error page
+│   ├── base.html             # Base template
+│   ├── index.html            # Home page
+│   ├── launch.html           # Launch success page
+│   └── error.html            # Error page
 ├── static/
 │   ├── css/
-│   │   ├── input.css     # TailwindCSS input
-│   │   └── output.css    # Compiled CSS
+│   │   ├── input.css         # TailwindCSS input
+│   │   └── output.css        # Compiled CSS
 │   └── js/
-│       └── main.js       # JavaScript (optional)
+│       └── main.js           # JavaScript (optional)
 └── utils/
-    └── lti_utils.py      # LTI helper functions
+    └── lti_utils.py          # LTI helper functions
 ```
 
 ## 🔑 Key Generation
@@ -258,9 +283,68 @@ openssl rsa -in keys/private.key -pubout -out keys/public.key
 - **HTTPS Enforcement**: Required in production
 - **Key Rotation**: Supports multiple keys
 
+## 🌐 Deployment Options
+
+This project supports multiple deployment methods:
+
+| Platform | Difficulty | Cost | Setup Time | Best For |
+|----------|-----------|------|------------|----------|
+| **Render.com** | ⭐ Easy | Free-$7/mo | 5 min | **Recommended** - Quick deploy |
+| **Docker** | ⭐⭐ Medium | Varies | 15 min | Container environments |
+| **VPS/Server** | ⭐⭐⭐ Hard | Varies | 30+ min | Full control needed |
+
+### 📋 Deployment Files Included
+
+- `render.yaml` - Render Blueprint configuration (auto-deploy)
+- `build.sh` - Build script for Render
+- `DEPLOYMENT_CHECKLIST.md` - Quick deployment guide
+- `RENDER_FREE_TIER.md` - Free tier setup and limitations  
+- `RENDER_DEPLOYMENT.md` - Complete Render deployment guide
+- `.env.example` - Environment variables template
+
 ## 🚢 Production Deployment
 
-### Using Gunicorn
+### 🎯 Deploy to Render.com (Recommended - Easiest!)
+
+The fastest way to deploy this LTI tool is using [Render.com](https://render.com) with our Blueprint configuration.
+
+#### Free Tier Deployment (Perfect for testing!)
+
+```bash
+# 1. Push to GitHub
+git add .
+git commit -m "Deploy to Render"
+git push origin main
+
+# 2. Deploy on Render
+# - Go to https://dashboard.render.com
+# - Click "New +" → "Blueprint"
+# - Select your repository
+# - Click "Apply"
+# 
+# Done! Your tool will be live in ~5-10 minutes 🎉
+```
+
+**📚 Deployment Guides:**
+- **Quick Start:** See `DEPLOYMENT_CHECKLIST.md` for step-by-step instructions
+- **Free Tier:** See `RENDER_FREE_TIER.md` for free tier details and limitations
+- **Complete Guide:** See `RENDER_DEPLOYMENT.md` for advanced configuration
+
+**✨ Why Render?**
+- ✅ Free tier available (perfect for dev/testing)
+- ✅ Automatic HTTPS with free SSL certificates
+- ✅ Auto-deploy from GitHub
+- ✅ Built-in persistent disk support (Starter tier+)
+- ✅ One-click deployment with Blueprint
+- ✅ No credit card required for free tier
+
+**Free Tier Notes:**
+- Service spins down after 15 min inactivity (~30s cold start)
+- No persistent disk (but sessions work fine for LTI!)
+- Perfect for development, testing, and small courses
+- Upgrade to Starter ($7/month) for always-on service
+
+### Using Gunicorn (Traditional Deployment)
 
 ```bash
 # With uv (recommended)
@@ -558,6 +642,12 @@ if message_launch.is_deep_link_launch():
    - Restart terminal or run `source ~/.bashrc` (or `~/.zshrc`)
    - Check PATH includes `~/.cargo/bin`
 
+6. **Render deployment issues**
+   - See `RENDER_DEPLOYMENT.md` troubleshooting section
+   - Check build logs in Render dashboard
+   - Verify `TOOL_BASE_URL` is set correctly
+   - Ensure `configs/lti_config.json` has correct credentials
+
 ### Debug Mode
 
 Enable debug logging:
@@ -599,9 +689,16 @@ That's it! Your project now uses uv for faster dependency management.
 
 ## 📚 Resources
 
+### Documentation
+- **Quick Deploy:** `DEPLOYMENT_CHECKLIST.md` - Fast deployment to Render
+- **Free Tier Guide:** `RENDER_FREE_TIER.md` - Free tier setup and limitations
+- **Complete Guide:** `RENDER_DEPLOYMENT.md` - Advanced deployment options
+
+### External Resources
 - [LTI 1.3 Specification](https://www.imsglobal.org/spec/lti/v1p3)
 - [PyLTI1p3 Documentation](https://github.com/dmitry-viskov/pylti1.3)
 - [OpenEdX LTI Documentation](https://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/configuration/lti.html)
+- [Render Documentation](https://render.com/docs)
 - [uv Documentation](https://github.com/astral-sh/uv)
 - [TailwindCSS Documentation](https://tailwindcss.com/docs)
 - [Flask Documentation](https://flask.palletsprojects.com/)

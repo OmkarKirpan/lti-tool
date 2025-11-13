@@ -149,8 +149,8 @@ This guide walks you through deploying the LTI 1.3 Tool to Render.com.
        "auth_login_url": "https://your-openedx.com/api/lti/1.3/authorize/",
        "auth_token_url": "https://your-openedx.com/oauth2/token/",
        "key_set_url": "https://your-openedx.com/api/lti/1.3/jwks/",
-       "private_key_file": "keys/private.key",
-       "public_key_file": "keys/public.key",
+       "private_key_file": "../keys/private.key",
+       "public_key_file": "../keys/public.key",
        "deployment_ids": ["paste-deployment-id-here"]
      }
    }
