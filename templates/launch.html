@@ -477,19 +477,21 @@ content %}
       const resultDiv = document.getElementById('grade-result');
       const form = e.target;
 
-      // Get form data
-      const formData = new FormData(form);
-      const data = {
-          score: parseFloat(formData.get('score')),
-          max_score: parseFloat(formData.get('max_score')),
-          comment: formData.get('comment') || '',
-          // Include launch_id and user_id from data attributes
-          // This allows the endpoint to work even if session cookies are blocked in iframes
-          launch_id: form.dataset.launchId,
-          user_id: form.dataset.userId
-      };
+       // Get form data
+       const formData = new FormData(form);
+       const data = {
+           score: parseFloat(formData.get('score')),
+           max_score: parseFloat(formData.get('max_score')),
+           comment: formData.get('comment') || '',
+           // Include launch_id and user_id from data attributes
+           // This allows the endpoint to work even if session cookies are blocked in iframes
+           launch_id: form.dataset.launchId,
+           user_id: form.dataset.userId
+       };
 
-      // Validate
+       console.log('Submitting grade with data:', data);
+
+       // Validate
       if (data.score < 0 || data.score > data.max_score) {
           resultDiv.innerHTML = `
               <div class="alert alert-error animate-slide-up">
@@ -523,9 +525,12 @@ content %}
               body: JSON.stringify(data)
           });
 
-          const result = await response.json();
+           const result = await response.json();
+           
+           console.log('Response status:', response.status);
+           console.log('Response data:', result);
 
-          if (response.ok && result.success) {
+           if (response.ok && result.success) {
               resultDiv.innerHTML = `
                   <div class="alert alert-success animate-slide-up">
                       <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
