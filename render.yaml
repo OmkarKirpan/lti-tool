@@ -1,0 +1,68 @@
+services:
+  # Web Service
+  - type: web
+    name: edx-lti-tool
+    runtime: python
+    plan: free  # Change to 'starter' or higher for production
+    region: oregon  # Choose: oregon, frankfurt, singapore, ohio
+    branch: main  # or your deployment branch
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn -w 4 -b 0.0.0.0:$PORT --access-logfile - --error-logfile - app:app"
+    healthCheckPath: /api/status
+    
+    envVars:
+      # Flask Configuration
+      - key: FLASK_ENV
+        value: production
+      
+      - key: FLASK_SECRET_KEY
+        generateValue: true  # Render will auto-generate a secure key
+      
+      - key: FLASK_PORT
+        value: 10000
+      
+      # Session Configuration
+      - key: SESSION_TYPE
+        value: filesystem
+        # For Redis: change to 'redis' and add Redis connection details
+      
+      - key: SESSION_COOKIE_SECURE
+        value: True
+      
+      # Tool Configuration
+      - key: TOOL_NAME
+        value: Minimal LTI 1.3 Tool
+      
+      - key: TOOL_DESCRIPTION
+        value: A minimal LTI 1.3 tool for OpenEdX
+      
+      - key: TOOL_BASE_URL
+        sync: false  # You'll need to set this manually after deployment
+      
+      # OpenEdX Configuration
+      - key: OPENEDX_BASE_URL
+        value: https://courses.edx.org
+      
+      # Logging
+      - key: LOG_LEVEL
+        value: INFO
+      
+      # Security
+      - key: ALLOWED_HOSTS
+        value: "*"
+    
+    # Disk storage for sessions (if using filesystem sessions)
+    disk:
+      name: lti-sessions
+      mountPath: /opt/render/project/src/flask_session
+      sizeGB: 1
+
+# Optional: Redis for production sessions
+# Uncomment below if you want to use Redis for sessions
+#
+# - type: redis
+#   name: lti-redis
+#   plan: free  # Free tier available
+#   maxmemoryPolicy: allkeys-lru
+#   ipAllowList: []  # Empty means allow from all Render services
+
