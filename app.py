@@ -102,7 +102,8 @@ def launch():
         session["is_instructor"] = "Instructor" in user_info.get("roles", [])
 
         # Store launch_id for AGS operations
-        session["launch_id"] = message_launch.get_launch_id()
+        launch_id = message_launch.get_launch_id()
+        session["launch_id"] = launch_id
 
         # Check AGS availability
         has_ags = message_launch.has_ags()
@@ -125,7 +126,8 @@ def launch():
             custom_params=custom_params,
             is_resource_launch=is_resource_launch,
             is_deep_link=is_deep_link,
-            launch_id=launch_data.get("nonce", "N/A"),
+            launch_id=launch_id,
+            launch_nonce=launch_data.get("nonce", "N/A"),
             timestamp=datetime.now().isoformat(),
             has_ags=has_ags,
         )
@@ -229,13 +231,14 @@ def api_status():
 def submit_grade():
     """
     Submit a grade back to Open edX via AGS (Assignment and Grade Services)
+
+    This endpoint accepts launch_id and user_id from both the request body and session.
+    This is important for iframe contexts where session cookies may be blocked by browsers,
+    especially on free hosting tiers without persistent Redis sessions.
     """
     from datetime import datetime
-    from pylti1p3.grade import Grade
 
-    # Validate authentication
-    if "user_id" not in session or "launch_id" not in session:
-        return jsonify({"error": "Not authenticated or no launch data"}), 401
+    from pylti1p3.grade import Grade
 
     try:
         # Get parameters from request
@@ -244,6 +247,17 @@ def submit_grade():
         max_score = float(data.get("max_score", 100))
         comment = data.get("comment", "")
 
+        # Get launch_id from request body (fallback) or session
+        # This allows the endpoint to work even if cookies are blocked in iframes
+        launch_id = data.get("launch_id") or session.get("launch_id")
+        user_id = data.get("user_id") or session.get("user_id")
+
+        if not launch_id or not user_id:
+            app.logger.error(f"Missing authentication data. launch_id: {launch_id}, user_id: {user_id}")
+            return jsonify({
+                "error": "Not authenticated or no launch data. Please relaunch the tool from Open edX."
+            }), 401
+
         # Validate score
         if score < 0 or score > max_score:
             return jsonify({"error": "Invalid score value"}), 400
@@ -251,7 +265,6 @@ def submit_grade():
         # Retrieve stored launch data
         tool_conf = ToolConfJsonFile(get_lti_config_path())
         flask_request = FlaskRequest()
-        launch_id = session.get("launch_id")
 
         message_launch = FlaskMessageLaunch.from_cache(
             launch_id, flask_request, tool_conf, launch_data_storage=get_launch_data_storage()
@@ -276,7 +289,7 @@ def submit_grade():
         grade = Grade()
         grade.set_score_given(score)
         grade.set_score_maximum(max_score)
-        grade.set_user_id(session.get("user_id"))
+        grade.set_user_id(user_id)
         grade.set_timestamp(datetime.utcnow().isoformat() + "Z")
         grade.set_activity_progress("Completed")
         grade.set_grading_progress("FullyGraded")
@@ -286,7 +299,7 @@ def submit_grade():
 
         # Submit grade to Open edX
         app.logger.info(
-            f"Submitting grade: {score}/{max_score} for user {session.get('user_id')}"
+            f"Submitting grade: {score}/{max_score} for user {user_id}"
         )
         response = ags.put_grade(grade)
 
