@@ -25,6 +25,9 @@ class Config:
     SESSION_TYPE = os.environ.get(
         "SESSION_TYPE", "filesystem"
     )  # Options: filesystem, redis, memcached
+    # Use /data for Render persistent disk, or flask_session for local dev
+    SESSION_FILE_DIR = os.environ.get("SESSION_FILE_DIR", 
+                                     "/data" if os.path.exists("/data") else "flask_session")
     SESSION_PERMANENT = False
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
 

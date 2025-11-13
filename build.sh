@@ -14,8 +14,16 @@ echo "📁 Creating directories..."
 mkdir -p logs
 mkdir -p uploads
 mkdir -p configs
-mkdir -p flask_session
 mkdir -p keys
+
+# Create session directory - use /data if it exists (Render disk), otherwise flask_session
+if [ -d "/data" ]; then
+    echo "📁 Using /data for session storage (Render persistent disk)"
+    mkdir -p /data
+else
+    echo "📁 Using flask_session for session storage (local)"
+    mkdir -p flask_session
+fi
 
 # Generate RSA keys if they don't exist
 echo "🔑 Checking RSA keys..."
